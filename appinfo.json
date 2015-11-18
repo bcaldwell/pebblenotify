@@ -1,0 +1,46 @@
+{
+    "appKeys": {
+        "EVENT_KEY": 4,
+        "ID_KEY": 0,
+        "MESSAGE_KEY": 3,
+        "TIMESTAMP_KEY": 1,
+        "TITLE_KEY": 2
+    },
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "caldwellbenjamin8@gmail.com",
+    "longName": "Pebble Notify Me",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/disconnect.png",
+                "name": "PHONE_DISCONNECT",
+                "type": "png"
+            },
+            {
+                "file": "images/noun_notification_151666.png",
+                "menuIcon": true,
+                "name": "NOTIFICATION_BELL",
+                "type": "png"
+            },
+            {
+                "file": "images/noun_error_175968.png",
+                "name": "home_screen_icon",
+                "type": "png-trans"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "Pebble Notify Me",
+    "targetPlatforms": [
+        "aplite",
+        "basalt"
+    ],
+    "uuid": "08ba3d0f-f074-4d49-93fb-017dae1b9e95",
+    "versionLabel": "1.2",
+    "watchapp": {
+        "watchface": false
+    }
+}
