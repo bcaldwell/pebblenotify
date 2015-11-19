@@ -56,34 +56,49 @@ var ws = null;
 
 function socketStuff (){
   ws = new WebSocket('ws://162.244.25.137:2999');   
-ws.onopen = function(){
-  console.log ("open");
-  ws.send (BASILISK_KEY);
-  setTimeout(function(){
-    ws.send("notification request");
-  }, 1000*60*60);
-};
+  ws.onopen = function(){
+    console.log ("open");
+    ws.send (BASILISK_KEY);
+    setTimeout(function(){
+      ws.send("notification request");
+    }, 1000*60*60);
+  };
   
   ws.onmessage = function (message) { 
-  message = JSON.parse (message.data);
-  if (message.event === "notification"){
-      // Send to Pebble
-    if (message.data && message.data.length){
-      sendNotifications (0, message.data);
+    message = JSON.parse (message.data);
+    if (message.event === "notification"){
+        // Send to Pebble
+      if (message.data && message.data.length){
+        sendNotifications (0, message.data);
+      }
     }
-  }
-};
+  };
 
-
-ws.onclose = function(){
-  console.log ("Socket is closed");
-  setTimeout(socketStuff, 1000*60*60);
-};
+  ws.onclose = function(){
+    console.log ("Socket is closed");
+    setTimeout(socketStuff, 1000*60*60);
+  };
 }
 socketStuff();
 
+function resetSocket (){
+  console.log ("resetting" + ws.readyState);
+  if (ws && ws.readyState === 1){
+    ws.close();
+    socketStuff();
+  }
+}
 
+function millisUntilMidnight() {
+    var midnight = new Date();
+    midnight.setHours(24,0,0,0);
+    return ( +midnight - (+new Date()));
+}
 
+setTimeout(function dailyReset(){
+  resetSocket();
+  setTimeout(dailyReset,(1000*60*60*24));
+}, millisUntilMidnight());
 // Function to send a message to the Pebble using AppMessage API
 function sendMessage() {
 // 	Pebble.sendAppMessage({"status": 0});
@@ -103,12 +118,17 @@ Pebble.addEventListener("ready",
 							});
 												
 // Called when incoming message from the Pebble is received
-Pebble.addEventListener("appmessage",
-							function(e) {
-								console.log("Received Status: " + JSON.stringify(e.payload));
-                console.log (JSON.stringify({event:e.payload.EVENT_KEY, data:e.payload.ID_KEY}));
-                ws.send(JSON.stringify({event:e.payload.EVENT_KEY, data:e.payload.ID_KEY}));
-							});
+Pebble.addEventListener("appmessage", function(e) {
+  console.log("Received Status: " + JSON.stringify(e.payload));
+  console.log (JSON.stringify({event:e.payload.EVENT_KEY, data:e.payload.ID_KEY}));
+  
+  if (e.payload.EVENT_KEY.toLowerCase() === "socketreset"){
+    return resetSocket();
+  }
+  
+  ws.send(JSON.stringify({event:e.payload.EVENT_KEY, data:e.payload.ID_KEY}));
+});
+
 
 Pebble.addEventListener('showConfiguration', function() {
   Pebble.openURL('https://pebblenotifyme.herokuapp.com/pebble/login');

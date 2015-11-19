@@ -3,8 +3,7 @@
 #define STORAGE_KEY 42
 
 static Window* g_window, * notification_window;
-static TextLayer *g_time_layer;
-static TextLayer *g_counter_layer;
+static TextLayer *g_time_layer, *g_date_layer, *g_counter_layer;
 static GBitmap *g_disconnect;
 static BitmapLayer *g_bitmap_layer;
 
@@ -239,6 +238,13 @@ static void update_time() {
 
   // Display this time on the TextLayer
   text_layer_set_text(g_time_layer, buffer);
+  
+  // Copy date into buffer from tm structure
+  static char date_buffer[16];
+  strftime(date_buffer, sizeof(date_buffer), "%a %d %b", tick_time);
+
+  // Show the date
+  text_layer_set_text(g_date_layer, date_buffer);
 }
 
 //handler for ticks
@@ -257,10 +263,20 @@ void bt_handler(bool connected) {
 static void main_button_back_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
+static void socket_reset_request(){
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+    dict_write_cstring(iter, EVENT_KEY, "socketreset");
+    app_message_outbox_send();
+}
+
 //add button handlers to notification window
 static void main_click_config_provider(void *context) {
   // Register the ClickHandlers
   window_single_click_subscribe(BUTTON_ID_BACK, main_button_back_handler);
+  window_single_click_subscribe(BUTTON_ID_UP, socket_reset_request);
+  window_single_click_subscribe(BUTTON_ID_SELECT, socket_reset_request);
+  window_single_click_subscribe(BUTTON_ID_DOWN, socket_reset_request);
 }
 
 //load function for main window with time
@@ -268,7 +284,8 @@ void window_load(Window *window)
 {  
   Layer *window_layer = window_get_root_layer(window); 
   
-  g_time_layer = text_layer_create(GRect(5, 52, 139, 50));
+  //add time layer
+  g_time_layer = text_layer_create(GRect(5, 40, 139, 50));
   text_layer_set_background_color(g_time_layer, GColorClear);
   text_layer_set_text_color(g_time_layer, GColorBlack);
   text_layer_set_text(g_time_layer, "00:00");
@@ -277,6 +294,17 @@ void window_load(Window *window)
   text_layer_set_text_alignment(g_time_layer, GTextAlignmentCenter);
  
   layer_add_child(window_layer, text_layer_get_layer(g_time_layer));
+  
+  //add date layer
+  g_date_layer = text_layer_create(GRect(5, 80, 139, 50));
+  text_layer_set_background_color(g_date_layer, GColorClear);
+  text_layer_set_text_color(g_date_layer, GColorBlack);
+  text_layer_set_text(g_date_layer, "00:00");
+  
+  text_layer_set_font(g_date_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_text_alignment(g_date_layer, GTextAlignmentCenter);
+ 
+  layer_add_child(window_layer, text_layer_get_layer(g_date_layer));
   
   //add counter text layer
   g_counter_layer = text_layer_create(GRect(5, 120, 50, 50));
