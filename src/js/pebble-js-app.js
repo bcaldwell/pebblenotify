@@ -48,14 +48,15 @@ var sendNotifications = function (i, notifications){
   });
 };
 
-var username = localStorage.getItem("USERNAME_KEY") || "test";
-var BASILISK_KEY = localStorage.getItem("BASILISK_KEY") || "MVNOVlYwSUdROTBFTVNIOVNQQlBDNUxGOTpOamR5V3oxTmFScWhhcG02Vzd3ak9NdllPR0s1SUNBdHQ1ZHZrT2ZIWGR3";
+var username = localStorage.getItem("USERNAME_KEY");
+var BASILISK_KEY = localStorage.getItem("BASILISK_KEY");
 // var BASILISK_KEY = localStorage.getItem("BASILISK_KEY")
 
 var ws = null;
 
 function socketStuff (){
-  ws = new WebSocket('ws://162.244.25.137:2999');   
+//   ws = new WebSocket('ws://pebblenotifyme.herokuapp.com/');   
+  ws = new WebSocket('ws://test.pebblenotify.me:2999');   
   ws.onopen = function(){
     console.log ("open");
     ws.send (BASILISK_KEY);
@@ -131,12 +132,13 @@ Pebble.addEventListener("appmessage", function(e) {
 
 
 Pebble.addEventListener('showConfiguration', function() {
-  Pebble.openURL('https://pebblenotifyme.herokuapp.com/pebble/login');
+  Pebble.openURL('http://localhost:2999/pebble/config');
 });
 Pebble.addEventListener('webviewclosed', function(e) {
-  var returned = JSON.parse (e.response);
-  console.log (typeof e.response);
-console.log("Configuration window returned: " + (e.response));
+  var returned = JSON.parse (decodeURIComponent (e.response));
+  console.log("Configuration window returned: " + (e.response));
+  console.log (JSON.stringify(returned));
+  console.log (returned.ping_count)
   localStorage.setItem("USERNAME_KEY", returned.username);
   console.log (returned.id +":"+ returned.secret);
   localStorage.setItem("BASILISK_KEY", Btoa(returned.id +":"+ returned.secret));
