@@ -2,4 +2,3 @@
 TODO
 - ping count configuration
 - better socket configuration
-- redness
