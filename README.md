@@ -1,1 +1,1 @@
-# pebblenotify
+# Pebble Notify Me Pebble App
